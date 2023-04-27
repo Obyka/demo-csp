@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style nonce="<%= ourGenerateNonce %>">
+        #internal { color: red; }
+        #external { color: red; }
+    </style>
+</head>
+
+<body>
+    <h1>This page uses nonce + strict-dynamic</h1>
+    <p><%= csp %></p>
+    <div>
+        Script avec nonce : <span id="internal">KO</span>
+    </div>
+    <div>
+        Script sans nonce : <span id="external">KO</span>
+    </div>
+    <div>
+        <% if (locals.xss) { %>
+
+           <%- xss %>
+           
+           <% } %>
+    </div>
+    <div>
+        <form method="POST" action="/noncecsp">
+            <input type="textarea" name="xss" placeholder="xss">
+            <input type="submit">
+          </form>
+    </div>
+    <script nonce="<%= ourGenerateNonce %>">
+        setTimeout(() => {  
+            var span = document.getElementById('internal')
+            span.style.color='green'
+            span.innerText='OK' 
+        }, 2000);
+        var s = document.createElement('script');
+        s.src = 'https://code.jquery.com/jquery-3.6.4.min.js'
+        document.body.appendChild(s);
+        var span2 = document.getElementById('external')
+        span2.style.color='red'
+    </script>
+    <script>
+        setTimeout(() => {  
+            alert("Script sans nonce");
+            var span = document.getElementById('external')
+            span.style.color='green'
+            span.innerText='OK' 
+        }, 2000);
+    </script>
+</body>
+
+</html>
